@@ -185,8 +185,14 @@ help()
 		    -+
 		        Hide project names in list output. Use twice to show project
 		        names (default).
+            -b "some text"
+                Prepend "some text" to the beginning of each todo item added
+                by the current command (most useful with 'addm').
 		    -d CONFIG_FILE
 		        Use a configuration file other than the default ~/.todo/config
+            -e "some text"
+                Append "some text" to the end of each todo item added
+                by the current command (most useful with 'addm').
 		    -f
 		        Forces actions without confirmation or interactive input
 		    -h
@@ -344,7 +350,7 @@ replaceOrPrepend()
 }
 
 # == PROCESS OPTIONS ==
-while getopts ":fhpnatvVx+@Pd:" Option
+while getopts ":fhpnatvVx+@Pd:e:b:" Option
 do
   case $Option in
     '@' )
@@ -382,8 +388,14 @@ do
     a )
         TODOTXT_AUTO_ARCHIVE=0
         ;;
+    b )
+        TODOTXT_PREPEND_TEXT=$OPTARG
+        ;;
     d )
         TODOTXT_CFG_FILE=$OPTARG
+        ;;
+    e )
+        TODOTXT_APPEND_TEXT=$OPTARG
         ;;
     f )
         TODOTXT_FORCE=1
@@ -542,6 +554,12 @@ _addto() {
     input="$2"
     cleaninput $input
 
+    if [[ ! -z $TODOTXT_PREPEND_TEXT ]]; then
+        input="$TODOTXT_PREPEND_TEXT $input"
+    fi
+    if [[ ! -z $TODOTXT_APPEND_TEXT ]]; then
+        input="$input $TODOTXT_APPEND_TEXT"
+    fi
     if [[ $TODOTXT_DATE_ON_ADD = 1 ]]; then
         now=`date '+%Y-%m-%d'`
         input="$now $input"
